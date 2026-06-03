@@ -104,3 +104,5 @@ print("="*40)
 
 print("\n📝 Detaylı Sınıflandırma Raporu:")
 print(classification_report(y_test_cpu, test_preds, target_names=["Anlaşmazlık Yok", "Anlaşmazlık Var"]))
+torch.save(model.state_dict(), 'Datasets/mlp_model.pth')
+print("✅ Eğitilen model 'Datasets/mlp_model.pth' olarak kaydedildi.")
