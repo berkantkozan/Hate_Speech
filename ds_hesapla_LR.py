@@ -18,23 +18,9 @@ with open("Datasets/train_embeddings.pkl", "rb") as f:
 X_train = np.array([item['vector'] for item in train_data])
 y_train = np.array([item['label'] for item in train_data])
 
-# Farklı Alpha değerlerini test ediyoruz
-alphas = [0.01, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0]
-best_alpha = 1.0
-best_model = None
 
-# Not: Eğer validation setin tamamen ayrı bir CSV ise döngüyü fast_process skoruna göre kurabilirsin.
-# Burada eğitim seti üzerindeki kararlılığa bakarak hızlı bir seçim yapıyoruz:
-print("⏳ En iyi Alpha değeri aranıyor...")
-for a in alphas:
-    reg_model = Ridge(alpha=a)
-    reg_model.fit(X_train, y_train)
-    # Modelin R^2 skoruna veya validation başarısına göre seçebilirsiniz
-    print(f"Alpha: {a:<5} | Eğitim Seti Skoru: {reg_model.score(X_train, y_train):.4f}")
-
-# Nihai karar verdiğin alpha ile modeli sabitle:
-final_alpha = 1.0  # Döngü sonucuna göre burayı güncelleyebilirsin
-reg_model = Ridge(alpha=final_alpha)
+final_alpha = 10.0
+reg_model = Ridge(alpha=final_alpha, solver='svd')
 reg_model.fit(X_train, y_train)
 
 # Katsayıları tekrar GPU'ya taşıyoruz
