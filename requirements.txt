@@ -1,0 +1,18 @@
+# --- PyTorch & Deep Learning ---
+torch
+transformers
+
+# --- Veri İşleme & Klasik Makine Öğrenmesi ---
+pandas
+numpy
+scikit-learn
+xgboost
+imbalanced-learn
+
+# --- Görselleştirme & Arayüz ---
+matplotlib
+seaborn
+streamlit
+
+# --- Yardımcı Araçlar ---
+tqdm

@@ -7,11 +7,24 @@ Geleneksel sınıflandırma sistemlerinin "çoğunluk oyu" (majority vote) yakla
 ---
 
 ## 📂 Proje Yapısı ve Dosya Açıklamaları
+CUDA nın sağlıklı bağlantısı olabilmesi için python 3.11 sürümü ile çalışabilir veya pyhton 3.11 içeren bir venv kurabilirsiniz.(en son python sürümü cuda ile düzgün çalışmayabiliyor.)
+
+env kurmak isterseniz:
+adım 1 :
+ python -m venv venv
+adım 2 : 
+# Windows kullanıcıları için (Command Prompt veya PowerShell):
+venv\Scripts\activate
+
+# Mac ve Linux kullanıcıları için (Bash/Zsh):
+source venv/bin/activate
+
+Daha sonra "pip install -r requirements.txt" yaparak projede kullanacağımız gerekli  kütüphaneleri kurabilirsiniz.
 
 Depo içerisindeki kaynak kodlar ve üstlendikleri görevler aşağıda kronolojik sırasıyla açıklanmıştır:
 
 1.  **`gputest.py`**: Sistemdeki grafik kartının (CUDA) PyTorch tarafından başarıyla tanınıp tanınmadığını ve donanım adını (`NVIDIA GeForce RTX 4050` vb.) doğrulayan ön kontrol scriptidir.
-2.  **`open_and_harmonize.py`**: `Datasets/` altındaki farklı formatlara sahip ham JSON veri setlerini (örn. ConvAbuse, ArMIS) hiyerarşik olarak tarar. Metinleri temizler, etiketleri normalize eder, annotator'lar arasında fikir ayrılığı olup olmadığını hesaplar (`is_disagreement`) ve veriyi `train`, `dev`, `test` splitlerine ayırarak uyumlu CSV dosyaları üretir.
+2.  **`open_and_harmonize.py`**: `Datasets/` altındaki farklı formatlara sahip ham JSON veri setlerini (örn. ConvAbuse, ArMIS) hiyerarşik olarak tarar. Metinleri temizler, etiketleri normalize eder, annotator'lar arasında fikir ayrılığı olup olmadığını hesaplar (`is_disagreement`) ve veriyi `train`, `dev`, `test` splitlerine ayırarak uyumlu CSV dosyaları üretir. (VERİSETİNİ "datasetlinks.txt" dosyasındaki linkten indirip "Datasets/" konumuna taşıyabilir veya kodda indirdiğiniz yerin yolu ile değiştirebilirsiniz. )
 3.  **`embed.py`**: Harmonize edilmiş metinleri `bert-base-multilingual-cased` (mBERT) tokenizer'ı ile işler. Token'ların hangi kelimelere ait olduğunu (`word_ids()`) takip ederek alt kelimeleri (subwords) birleştirir ve her kelime için bağlamı koruyan **768 boyutlu yoğun vektörler** çıkararak `train_embeddings.pkl` olarak kaydeder.
 4.  **`ds_hesapla.py`**: Standart **K-En Yakın Komşu (K-NN)** tabanlı baseline modelidir. Gömü uzayındaki kelimelerin kosinüs benzerliklerini GPU üzerinde matris çarpımıyla hesaplar ve en yakın $K$ komşunun etiket ortalamasını alarak disagreement skoru üretir.
 5.  **`ds_hesapla_wknn.py`**: Gelişmiş **Uzaklık Ağırlıklı K-NN (Distance-Weighted K-NN)** modelidir. Komşuların kosinüs benzerlik skorlarını doğrudan ağırlık faktörü olarak kullanır ve $\frac{\sum (w_i \cdot y_i)}{\sum w_i}$ formülüyle ağırlıklı kararlar üretir. Sıfıra bölme hatalarına karşı epsilon korumalıdır.
@@ -19,7 +32,7 @@ Depo içerisindeki kaynak kodlar ve üstlendikleri görevler aşağıda kronoloj
 7.  **`evaluation.py`**: Baseline modeller tarafından üretilen `sds_mean`, `sds_max` ve `sds_sum` toplulaştırma stratejilerini girdi kabul ederek bir Lojistik Regresyon eğitir. Strateji ağırlıklarını raporlar, doğruluk ve ROC-AUC skorlarını hesaplayarak `final_report.txt` ve yüksek çözünürlüklü `confusion_matrix.png` grafiğini kaydeder.
 8.  **`mlp.py`**: Projenin nihai derin öğrenme mimarisidir. Sınıf dengesizliğini çözmek için eğitim setine **SMOTE** uygular. PyTorch kullanarak Batch Normalization ve Dropout korumalı 3 katmanlı derin bir Yapay Sinir Ağı (MLP) eğitir ve test seti üzerinde SOTA sonuçları üretir.
 9.  **`loss_eğrisi.py`**: MLP modelinin 15 epokluk eğitim süreci boyunca sergilediği kayıp (BCE Loss) azalışını `matplotlib` ve `seaborn` kullanarak akademik yayın standartlarında çizgi grafiğine (`mlp_loss_egrisi.png`) dönüştürür.
-
+10.  **`streamlit_demo.py`**: env içinde "pip install streamlit" yaptıktan sonra terminalde "streamlit run streamlit_demo.py" ile çalıştırıp local arayüzde spesifik örneklerin nefret içerikli anlaşmazlık içerip içermediğini mlp modelinde tahmin ettirebilirsiniz.
 ---
 
 ## 🧬 Veri Seti ve Sınıf Dengeleme (SMOTE)
